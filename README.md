@@ -4,9 +4,34 @@ Open Chess is an Arduino-based chessboard project that integrates an 8×8 NeoPix
 
 ## Overview
 
-Open Chess uses an Arduino to control a NeoPixel matrix that displays the chess board. Hall effect sensors detect magnets embedded in each chess piece, allowing the board to sense when a piece is picked up or placed. The main sketch simulates moves using a state machine that provides visual feedback (red blinking for selected pieces and white overlays for possible moves) and even features a dynamic firework animation when the game starts.
+Open Chess uses an Arduino to control a NeoPixel matrix that displays the chess board. Hall effect sensors detect magnets embedded in each chess piece, allowing the board to sense when a piece is picked up or placed. The main sketch simulates moves using a finite state machine (FSM) that provides visual feedback (red blinking for selected pieces and white overlays for possible moves) and even features a dynamic firework animation when the game starts.
 
 Additionally, the repository includes a `Sensor_Test.ino` sketch, which simply lights up the tiles corresponding to the starting pieces. This is an excellent tool for verifying your sensor grid and LED mapping before running the full chess game code.
+
+## 📊 Finite State Machine Diagram
+
+This diagram shows the core logic of how Open Chess detects and handles game interactions using a finite state machine:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle --> PieceSelected : Piece picked up
+    PieceSelected --> ShowMoves : Show possible moves
+
+    ShowMoves --> MoveConfirmed : Piece placed on valid square
+    ShowMoves --> InvalidMove : Piece placed on invalid square
+
+    MoveConfirmed --> ReturnToIdle : Update board
+    InvalidMove --> ReturnToIdle : Reset piece
+
+    ReturnToIdle --> Idle
+
+    Idle --> VictoryAnimation : Game started
+    MoveConfirmed --> VictoryAnimation : Game won
+
+    VictoryAnimation --> Idle : Animation ends
+```
 
 ## Hardware Requirements
 
@@ -59,12 +84,12 @@ Make sure to install the Adafruit NeoPixel Library via the Arduino Library Manag
   `index = col * NUM_COLS + (7 - row)`
 
 - **Move Indication and Animations:**  
-  When a piece is picked up, the corresponding square blinks red and the legal moves for that piece are displayed in white. The code uses a state machine to simulate moves (e.g., white pawn, black pawn, knight, bishop, etc.) and features a firework animation to indicate game startup.
+  When a piece is picked up, the corresponding square blinks red and the legal moves for that piece are displayed in white. The code uses a FSM to simulate moves (e.g., white pawn, black pawn, knight, bishop, etc.) and features a firework animation to indicate game startup.
 
 ## Customization
 
 Feel free to modify:
-- The state machine to implement your own move logic or additional rules.
+- The FSM to implement your own move logic or additional rules.
 - The visual effects (e.g., blinking intervals, firework animation parameters).
 - Hardware pin assignments if using a different Arduino board or wiring configuration.
 
